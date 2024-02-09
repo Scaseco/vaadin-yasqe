@@ -17,6 +17,8 @@ package org.aksw.vaadin.yasqe;
 
 import java.util.Objects;
 
+import com.vaadin.flow.function.SerializableSupplier;
+
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
@@ -25,8 +27,17 @@ import elemental.json.JsonObject;
  *
  * A java domain view over its json model.
  */
-public class YasqeConfig {
+public class YasqeConfig
+    implements SerializableSupplier<JsonObject>
+{
+    private static final long serialVersionUID = 1L;
+
     protected JsonObject json;
+
+    @Override
+    public JsonObject get() {
+        return json;
+    }
 
     public YasqeConfig() {
         this(Json.createObject());
@@ -35,10 +46,6 @@ public class YasqeConfig {
     public YasqeConfig(JsonObject json) {
         super();
         this.json = Objects.requireNonNull(json);
-    }
-
-    public JsonObject getJson() {
-        return json;
     }
 
     public String getMode() {

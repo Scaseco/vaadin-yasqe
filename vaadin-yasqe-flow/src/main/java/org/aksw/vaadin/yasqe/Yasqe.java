@@ -27,6 +27,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
@@ -44,7 +45,7 @@ import elemental.json.JsonValue;
 public class Yasqe extends Div {
     private static final long serialVersionUID = 1L;
 
-    protected YasqeConfig config;
+    protected SerializableSupplier<JsonObject> config;
 
     /**
      * Server side state.
@@ -63,7 +64,10 @@ public class Yasqe extends Div {
         this(new YasqeConfig());
     }
 
-    public Yasqe(YasqeConfig config) {
+    /**
+     * @param config The config is anything that can produce a JSON object.
+     */
+    public Yasqe(SerializableSupplier<JsonObject> config) {
         super();
         String id = "yasqe-"; // + UUID.randomUUID();
         setId(id);
@@ -136,7 +140,7 @@ public class Yasqe extends Div {
             // });
 
         }, 100);
-        """, getId().get(), config.getJson(), mirrorClone);
+        """, getId().get(), config.get(), mirrorClone);
 
         JsonObjectUtils.clear(mirror.getObject("enqueuedPrefixes"));
     }
