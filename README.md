@@ -3,6 +3,23 @@ Vaadin bindings for Yasqe
 
 <img src="docs/images/2024-02-09-vaadin-yasqe.png" width="550px" />
 
+## Maven
+
+```
+<dependency>
+    <groupId>org.aksw.vaadin.yasqe</groupId>
+    <artifactId>vaadin-yasqe-flow</artifactId>
+</dependency>
+```
+
+Click [here](https://central.sonatype.com/artifact/org.aksw.vaadin.yasqe/vaadin-yasqe-flow) to see all published versions.
+
+## Versions
+
+| vaadin-yasqe | Based on             |
+|:------------:|:--------------------:|
+|        0.5.0 | @zazuko/yasqe:4.2.34 |
+
 ## Usage
 See the demo for details.
 
