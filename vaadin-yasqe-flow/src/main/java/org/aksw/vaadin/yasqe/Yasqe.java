@@ -18,6 +18,7 @@ package org.aksw.vaadin.yasqe;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -69,7 +70,7 @@ public class Yasqe extends Div {
      */
     public Yasqe(SerializableSupplier<JsonObject> config) {
         super();
-        String id = "yasqe-"; // + UUID.randomUUID();
+        String id = "yasqe-" + UUID.randomUUID();
         setId(id);
 
         this.mirror = Json.createObject();
