@@ -19,10 +19,10 @@ import com.vaadin.flow.router.Route;
 public class YasqeDemoLandingPage extends Composite<VerticalLayout> {
     private static final long serialVersionUID = 1L;
 
-    private final Grid<Example> grExamples = new Grid<>();
+    private final Grid<Example> gridOfExamples = new Grid<>();
 
     public YasqeDemoLandingPage() {
-        this.grExamples
+        this.gridOfExamples
             .addColumn(new ComponentRenderer<>(example -> {
                 final Anchor anchor = new Anchor(example.route(), example.name());
 
@@ -35,19 +35,19 @@ public class YasqeDemoLandingPage extends Composite<VerticalLayout> {
             }))
             .setHeader("Available demos");
 
-        this.grExamples.setSizeFull();
-        this.grExamples.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
+        this.gridOfExamples.setSizeFull();
+        this.gridOfExamples.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
 
-        this.getContent().add(this.grExamples);
+        this.getContent().add(this.gridOfExamples);
         this.getContent().setHeightFull();
     }
 
     @Override
     protected void onAttach(final AttachEvent attachEvent) {
-        this.grExamples.setItems(List.of(
+        this.gridOfExamples.setItems(List.of(
             new Example(
                 YasqeDemoSimple.NAV,
-                "Minimalistic",
+                "Simple",
                 "Showcasing the simplest form of using the API"
             )
         ));

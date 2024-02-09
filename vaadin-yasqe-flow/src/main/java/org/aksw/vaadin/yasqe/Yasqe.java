@@ -28,7 +28,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
@@ -46,7 +46,7 @@ import elemental.json.JsonValue;
 public class Yasqe extends Div {
     private static final long serialVersionUID = 1L;
 
-    protected SerializableSupplier<JsonObject> config;
+    protected YasqeConfig config;
 
     /**
      * Server side state.
@@ -54,6 +54,8 @@ public class Yasqe extends Div {
      * Updated when the client reports changes.
      */
     protected JsonObject mirror;
+
+    protected SerializableFunction<ShortLinkRequestEvent, String> shortLinkHandler;
 
     public static void initDefaults(JsonObject json) {
         json.put("value", Json.createNull());
@@ -68,7 +70,7 @@ public class Yasqe extends Div {
     /**
      * @param config The config is anything that can produce a JSON object.
      */
-    public Yasqe(SerializableSupplier<JsonObject> config) {
+    public Yasqe(YasqeConfig config) {
         super();
         String id = "yasqe-" + UUID.randomUUID();
         setId(id);
@@ -90,8 +92,22 @@ public class Yasqe extends Div {
         this.getElement().executeJs("""
         setTimeout(function() {
             const id = $0;
+            const config = $1;
+            const mirror = $2;
             const self = document.getElementById(id);
-            const yasqe = new Yasqe(self, $1);
+
+            // Apply pending requestConfig
+            if (mirror.requestConfig) {
+                config.requestConfig = mirror.requestConfig;
+            }
+
+            if (config.showShortLinkButton) {
+                config.createShortLink = (yasqeArg, longLink) => {
+                    return self.$server.onCreateShareableLink(longLink);
+                };
+            }
+
+            const yasqe = new Yasqe(self, config);
             self.yasqe = yasqe;
 
             console.log('id', id);
@@ -113,7 +129,6 @@ public class Yasqe extends Div {
                 }
             };
 
-            const mirror = $2;
             // If a value was set on the mirror then place it into yasqe
             // This overrides local storage!
             if (mirror.value) {
@@ -141,7 +156,7 @@ public class Yasqe extends Div {
             // });
 
         }, 100);
-        """, getId().get(), config.get(), mirrorClone);
+        """, getId().get(), config.getJson(), mirrorClone);
 
         JsonUtils.clear(mirror.getObject("enqueuedPrefixes"));
     }
@@ -150,6 +165,18 @@ public class Yasqe extends Div {
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
     }
+
+    public Yasqe setRequestConfig(RequestConfig requestConfig) {
+        mirror.put("requestConfig", JsonUtils.clone(requestConfig.getJson()));
+        executeJsIfReady("document.getElementById($0).yasqe.requestConfig = $1;", getId().get(), requestConfig.getJson());
+        return this;
+    }
+
+    public RequestConfig getRequestConfig() {
+        JsonObject tmp = mirror.getObject("requestConfig");
+        return new RequestConfig(tmp == null ? Json.createObject() : JsonUtils.clone(tmp));
+    }
+
 
     /** Returns the current value. If the component is not initialized the value will be null. */
     public String getValue() {
@@ -214,15 +241,32 @@ public class Yasqe extends Div {
         mirror.put("value", value);
     }
 
-    protected boolean status = false;
-
     @ClientCallable
     public void onQuery(String req, boolean isAbort) {
         fireEvent(new QueryButtonEvent(this, true, req, isAbort));
     }
 
+    @ClientCallable
+    protected String onCreateShareableLink(String value) {
+        ShortLinkRequestEvent event = new ShortLinkRequestEvent(this, true, value);
+        String result = shortLinkHandler != null
+            ? shortLinkHandler.apply(event)
+            : "";
+        return result;
+    }
+
     public Registration addQueryButtonListener(ComponentEventListener<QueryButtonEvent> listener) {
         return this.addListener(QueryButtonEvent.class, listener);
+    }
+
+    /**
+     * Sets the handler for creating a short link from the request.
+     * The handler will only be called if yasqe was initialized with
+     * {@link YasqeConfig#setShowShortLinkButton(Boolean)} set to true.
+     */
+    public Yasqe setShortLinkHandler(SerializableFunction<ShortLinkRequestEvent, String> shortLinkHandler) {
+        this.shortLinkHandler = shortLinkHandler;
+        return this;
     }
 
 //  private static <T> T await(PendingJavaScriptResult promise, Class<T> cls) {

@@ -15,37 +15,29 @@
  */
 package org.aksw.vaadin.yasqe;
 
-import java.util.Objects;
-
-import com.vaadin.flow.function.SerializableSupplier;
-
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
 /**
  * The YasqeConfig.
  *
- * A java domain view over its json model.
+ * A java domain view over a json object.
  */
 public class YasqeConfig
-    implements SerializableSupplier<JsonObject>
+    extends ViewOverJson
 {
     private static final long serialVersionUID = 1L;
-
-    protected JsonObject json;
-
-    @Override
-    public JsonObject get() {
-        return json;
-    }
 
     public YasqeConfig() {
         this(Json.createObject());
     }
 
+    /**
+     * Any Json object can serve as the 'backend' for a YasqeConfig.
+     * It should be ensured that that all present values are of the appropriate type.
+     */
     public YasqeConfig(JsonObject json) {
-        super();
-        this.json = Objects.requireNonNull(json);
+        super(json);
     }
 
     public String getMode() {
@@ -102,15 +94,23 @@ public class YasqeConfig
         return this;
     }
 
-    public Boolean getShowQueryButton() {
+    public Boolean isShowQueryButton() {
         return json.getBoolean("showQueryButton");
     }
 
-    public YasqeConfig setMode(Boolean value) {
+    public YasqeConfig setShowQueryButton(Boolean value) {
         json.put("showQueryButton", value);
         return this;
     }
 
+    public Boolean isShowShortLinkButton() {
+        return json.getBoolean("showShortLinkButton");
+    }
+
+    public YasqeConfig setShowShortLinkButton(Boolean value) {
+        json.put("showShortLinkButton", value);
+        return this;
+    }
 
 //	  /**
 //	   * Show a button with which users can create a link to this query. Set this value to null to disable this functionality.
