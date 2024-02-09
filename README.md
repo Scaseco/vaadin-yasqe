@@ -7,8 +7,7 @@ Vaadin bindings for Yasqe
 See the demo for details.
 
 ```java
-public class MyComponent extends VerticalLayout
-{
+public class MyComponent extends VerticalLayout {
     public MyComponent() {
         setSizeFull();
         YasqeConfig config = new YasqeConfig();
