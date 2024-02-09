@@ -3,6 +3,16 @@ Vaadin bindings for Yasqe
 
 <img src="docs/images/2024-02-09-vaadin-yasqe.png" width="550px" />
 
+## Features
+
+* Execute Button (aka Query Button), Short Link and Curl Buttons configurable.
+* HTTP Request Parameters configurable (RequestConfig)
+* Prefix API URL configurable
+
+## Limitations
+
+* Prefix lookups should actually go to Vaadin first, rather than directly to a third party remote API - this is future work.
+
 ## Maven
 
 ```
@@ -19,6 +29,7 @@ Click [here](https://central.sonatype.com/artifact/org.aksw.vaadin.yasqe/vaadin-
 | vaadin-yasqe-flow | based on             |
 |:-----------------:|:--------------------:|
 |             0.5.0 | @zazuko/yasqe:4.2.34 |
+
 
 ## Usage
 See the demo for details.
