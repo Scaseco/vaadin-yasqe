@@ -26,10 +26,14 @@ Click [here](https://central.sonatype.com/artifact/org.aksw.vaadin.yasqe/vaadin-
 
 ## Versions
 
-| vaadin-yasqe-flow | based on             |
-|:-----------------:|:--------------------:|
-|             0.5.0 | @zazuko/yasqe:4.2.34 |
+| vaadin-yasqe-flow | based on |
+|:-----------------:|:--------:|
+|             0.5.0 | [@zazuko/yasqe:4.2.34](https://www.npmjs.com/package/@zazuko/yasqe/v/4.2.34) |
 
+
+### Source Code Repositories:
+
+* `@zazuko/yasqe`: https://github.com/zazuko/Yasgui
 
 ## Usage
 See the demo for details.
