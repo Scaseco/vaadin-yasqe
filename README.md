@@ -1,6 +1,7 @@
 # vaadin-yasqe
 Vaadin bindings for Yasqe
 
+<img src="docs/images/2024-02-09-vaadin-yasqe.png />
 
 ## Run the demo
 
