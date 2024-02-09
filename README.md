@@ -16,7 +16,7 @@ Click [here](https://central.sonatype.com/artifact/org.aksw.vaadin.yasqe/vaadin-
 
 ## Versions
 
-| vaadin-yasqe-flow | Based on             |
+| vaadin-yasqe-flow | based on             |
 |:-----------------:|:--------------------:|
 |             0.5.0 | @zazuko/yasqe:4.2.34 |
 
