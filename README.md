@@ -31,3 +31,7 @@ public class MyComponent extends VerticalLayout {
 * Run `mvn install && mvn -f vaadin-yasqe-demo spring-boot:run`
 * Open <a href="http://localhost:8080" target="_blank">http://localhost:8080</a>
 
+
+## Credits
+
+* This vaadin-plugin project layout is based on that of [vaadin-maps-leaflet-flow](https://github.com/xdev-software/vaadin-maps-leaflet-flow).
