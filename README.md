@@ -18,7 +18,8 @@ public class MyComponent extends VerticalLayout
         this.add(yasqe);
 
         yasqe.addQueryButtonListener(ev -> {
-            new Notification("Is abort? " + ev.isAbort() + " - " + ev.getValue(), 5000).open();
+            new Notification("Is abort? " + ev.isAbort() + " - " + ev.getValue(), 5000)
+                .open();
             ev.getSource().updateQueryButton(!ev.isAbort(), null);
         });
     }
