@@ -7,14 +7,13 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-
-@Route(MinimalisticDemo.NAV)
-public class MinimalisticDemo extends VerticalLayout
+@Route(YasqeDemoSimple.NAV)
+public class YasqeDemoSimple extends VerticalLayout
 {
     private static final long serialVersionUID = 1L;
     public static final String NAV = "/minimalistic";
 
-    public MinimalisticDemo() {
+    public YasqeDemoSimple() {
         setSizeFull();
 
         YasqeConfig config = new YasqeConfig();

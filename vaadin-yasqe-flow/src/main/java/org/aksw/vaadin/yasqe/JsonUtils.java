@@ -17,10 +17,11 @@ package org.aksw.vaadin.yasqe;
 
 import java.util.Arrays;
 
+import elemental.json.Json;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class JsonObjectUtils {
+public class JsonUtils {
     /** Copy all entries from src into dst (not a deep copy) */
     public static JsonObject putAll(JsonObject dst, JsonObject src) {
         for (String key : src.keys()) {
@@ -34,4 +35,11 @@ public class JsonObjectUtils {
         Arrays.asList(obj.keys()).forEach(obj::remove);
         return obj;
     }
+
+    public static JsonValue clone(JsonValue json) {
+        // Print-parse is a slow approach for cloning...
+        JsonValue result = Json.parse(json.toJson());
+        return result;
+    }
+
 }

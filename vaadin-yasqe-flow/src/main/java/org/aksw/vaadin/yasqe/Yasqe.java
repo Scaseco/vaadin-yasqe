@@ -85,7 +85,7 @@ public class Yasqe extends Div {
 
     protected void init() {
         // We need to clone the json to avoid concurrent modifications
-        JsonValue mirrorClone = Json.parse(mirror.toJson());
+        JsonValue mirrorClone = JsonUtils.clone(mirror);
 
         this.getElement().executeJs("""
         setTimeout(function() {
@@ -143,7 +143,7 @@ public class Yasqe extends Div {
         }, 100);
         """, getId().get(), config.get(), mirrorClone);
 
-        JsonObjectUtils.clear(mirror.getObject("enqueuedPrefixes"));
+        JsonUtils.clear(mirror.getObject("enqueuedPrefixes"));
     }
 
     @Override
@@ -196,7 +196,7 @@ public class Yasqe extends Div {
         if (isAttached()) {
             executeJs("document.getElementById($0).yasqe.addPrefixes($1)", getId().get(), prefixes);
         } else {
-            JsonObjectUtils.putAll(mirror.getObject("enqueuedPrefixes"), prefixes);
+            JsonUtils.putAll(mirror.getObject("enqueuedPrefixes"), prefixes);
         }
         return this;
     }

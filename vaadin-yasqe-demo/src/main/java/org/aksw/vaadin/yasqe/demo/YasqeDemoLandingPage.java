@@ -16,12 +16,12 @@ import com.vaadin.flow.router.Route;
 
 @PageTitle("Yasqe + Vaadin demos")
 @Route("")
-public class DemoView extends Composite<VerticalLayout>
-{
+public class YasqeDemoLandingPage extends Composite<VerticalLayout> {
+    private static final long serialVersionUID = 1L;
+
     private final Grid<Example> grExamples = new Grid<>();
 
-    public DemoView()
-    {
+    public YasqeDemoLandingPage() {
         this.grExamples
             .addColumn(new ComponentRenderer<>(example -> {
                 final Anchor anchor = new Anchor(example.route(), example.name());
@@ -43,18 +43,16 @@ public class DemoView extends Composite<VerticalLayout>
     }
 
     @Override
-    protected void onAttach(final AttachEvent attachEvent)
-    {
+    protected void onAttach(final AttachEvent attachEvent) {
         this.grExamples.setItems(List.of(
             new Example(
-                MinimalisticDemo.NAV,
+                YasqeDemoSimple.NAV,
                 "Minimalistic",
                 "Showcasing the simplest form of using the API"
             )
         ));
     }
 
-    record Example(String route, String name, String desc)
-    {
+    record Example(String route, String name, String desc) {
     }
 }
