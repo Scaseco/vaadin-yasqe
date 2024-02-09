@@ -3,6 +3,8 @@ Vaadin bindings for Yasqe
 
 <img src="docs/images/2024-02-09-vaadin-yasqe.png" width="550px" />
 
+Vaadin Directory Entry: https://vaadin.com/directory/component/yasqe-for-vaadin
+
 ## Features
 
 * Execute Button (aka Query Button), Short Link and Curl Buttons configurable.
