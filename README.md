@@ -39,7 +39,7 @@ Click [here](https://central.sonatype.com/artifact/org.aksw.vaadin.yasqe/vaadin-
 
 ### Vaadin Configuration
 
-If you are using package whitelists to improve Vaadin's startup time to restrict which packages to scan, you may need to add `org/aksw/vaadin/yasqe` to the list.
+If you are using whitelists to improve Vaadin's startup time by limiting the amount of packages that need to be scanned for annotations, you may need to add `org/aksw/vaadin/yasqe` to the list.
 
 Examples:
 
