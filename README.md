@@ -38,6 +38,26 @@ Click [here](https://central.sonatype.com/artifact/org.aksw.vaadin.yasqe/vaadin-
 * `@zazuko/yasqe`: https://github.com/zazuko/Yasgui
 
 ## Usage
+
+### Vaadin Configuration
+
+If you are using whitelists to improve Vaadin's startup time by limiting the amount of packages that need to be scanned for annotations, you may need to add `org/aksw/vaadin/yasqe` to the list.
+
+Examples:
+
+```
+# src/main/resources/application.properties
+vaadin.whitelisted-packages = com/vaadin/flow,org/aksw/vaadin/yasqe
+```
+
+```
+# src/main/resources/application.yml
+vaadin:
+  whitelisted-packages: com/vaadin/flow,org/aksw/vaadin/yasqe
+```
+
+### Java Code
+
 See the demo for details.
 
 ```java
