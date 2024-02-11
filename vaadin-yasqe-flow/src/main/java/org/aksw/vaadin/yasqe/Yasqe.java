@@ -42,7 +42,7 @@ import elemental.json.JsonValue;
 @Tag("yasqe")
 @NpmPackage(value = "@zazuko/yasqe", version = "4.2.34")
 @CssImport("@zazuko/yasqe/build/yasqe.min.css")
-@JavaScript("./yasqe.vaadin.js")
+@JavaScript("./yasqe.vaadin.bootstrap.js")
 public class Yasqe extends Div {
     private static final long serialVersionUID = 1L;
 
@@ -135,10 +135,10 @@ public class Yasqe extends Div {
                 yasqe.setValue(mirror.value);
             }
 
-            const super_setValue = yasqe.setValue;
+            yasqe.super_setValue = yasqe.setValue;
             yasqe.setValue = arg => {
                 self.$server.onSetValue(arg);
-                super_setValue(arg);
+                yasqe.super_setValue(arg);
             };
 
             yasqe.addPrefixes(mirror.enqueuedPrefixes);
@@ -237,7 +237,7 @@ public class Yasqe extends Div {
     }
 
     @ClientCallable
-    protected void onClientChangeValue(String value) {
+    protected void onSetValue(String value) {
         mirror.put("value", value);
     }
 

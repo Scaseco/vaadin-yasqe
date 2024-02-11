@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.aksw.vaadin.yasqe</groupId>
 		<artifactId>vaadin-yasqe-parent</artifactId>
-		<version>0.5.0</version>
+		<version>0.5.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>vaadin-yasqe-demo</artifactId>
