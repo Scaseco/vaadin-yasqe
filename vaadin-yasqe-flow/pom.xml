@@ -11,7 +11,7 @@
 	</parent>
 	-->
 	<groupId>org.aksw.vaadin.yasqe</groupId>
-	<version>0.5.1</version>
+	<version>0.5.2-SNAPSHOT</version>
 
 	<artifactId>vaadin-yasqe-flow</artifactId>
 	<packaging>jar</packaging>
@@ -24,7 +24,7 @@
 		<url>https://github.com/AKSW/vaadin-yasqe</url>
 		<connection>scm:git:git@github.com:AKSW/vaadin-yasqe.git</connection>
 		<developerConnection>scm:git:git@github.com:AKSW/vaadin-yasqe.git</developerConnection>
-	  <tag>vaadin-yasqe-flow-0.5.1</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<inceptionYear>2024</inceptionYear>
