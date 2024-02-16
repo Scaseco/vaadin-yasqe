@@ -24,8 +24,8 @@
 
 	<scm>
 		<url>https://github.com/AKSW/vaadin-yasqe</url>
-		<connection>scm:git:git://git@github.com/AKSW/vaadin-yasqe.git</connection>
-		<developerConnection>scm:git:git://git@github.com/AKSW/vaadin-yasqe.git</developerConnection>		
+		<connection>scm:git:git://git@github.com:AKSW/vaadin-yasqe.git</connection>
+		<developerConnection>scm:git:git://git@github.com:AKSW/vaadin-yasqe.git</developerConnection>
 	</scm>
 
 	<inceptionYear>2024</inceptionYear>
