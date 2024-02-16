@@ -52,14 +52,16 @@
 	</licenses>
 
 	<properties>
+		<!-- Dependency-Versions -->
+		<vaadin.version>24.3.3</vaadin.version>
+
 		<javaVersion>17</javaVersion>
 		<maven.compiler.release>${javaVersion}</maven.compiler.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<!-- Dependency-Versions -->
-		<vaadin.version>24.3.3</vaadin.version>
+		<maven-release-plugin.version>3.0.1</maven-release-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -237,6 +239,15 @@
 							META-INF/VAADIN/
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>${maven-release-plugin.version}</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<goals>deploy</goals>
 				</configuration>
 			</plugin>
 		</plugins>
