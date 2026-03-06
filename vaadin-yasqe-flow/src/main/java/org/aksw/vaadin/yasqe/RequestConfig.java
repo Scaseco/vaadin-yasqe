@@ -18,10 +18,9 @@ package org.aksw.vaadin.yasqe;
 import java.util.List;
 import java.util.Map;
 
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * The request config is used for creating the curl link.
@@ -32,15 +31,15 @@ public class RequestConfig
     private static final long serialVersionUID = 1L;
 
     public RequestConfig() {
-        this(Json.createObject());
+        this(JsonUtils.createObject());
     }
 
-    public RequestConfig(JsonObject json) {
+    public RequestConfig(ObjectNode json) {
         super(json);
     }
 
     public String getEndpoint() {
-        return json.get("endpoint");
+        return JsonUtils.getString(json, "endpoint");
     }
 
     public RequestConfig setEndpoint(String value) {
@@ -49,7 +48,7 @@ public class RequestConfig
     }
 
     public String getMethod() {
-        return json.get("method");
+        return JsonUtils.getString(json, "method");
     }
 
     public RequestConfig setMethod(String value) {
@@ -58,7 +57,7 @@ public class RequestConfig
     }
 
     public String getAcceptHeaderGraph() {
-        return json.get("acceptHeaderGraph");
+        return JsonUtils.getString(json, "acceptHeaderGraph");
     }
 
     public RequestConfig setAcceptHeaderGraph(String value) {
@@ -67,7 +66,7 @@ public class RequestConfig
     }
 
     public String getAcceptHeaderSelect() {
-        return json.get("acceptHeaderSelect");
+        return JsonUtils.getString(json, "acceptHeaderSelect");
     }
 
     public RequestConfig setAcceptHeaderSelect(String value) {
@@ -76,7 +75,7 @@ public class RequestConfig
     }
 
     public String getAcceptHeaderUpdate() {
-        return json.get("acceptHeaderUpdate");
+        return JsonUtils.getString(json, "acceptHeaderUpdate");
     }
 
     public RequestConfig setAcceptHeaderUpdate(String value) {
@@ -85,46 +84,46 @@ public class RequestConfig
     }
 
     public List<String> getNamedGraphs() {
-        JsonArray array = json.getArray("namedGraphs");
-        List<String> result = array == null ? null : JsonUtils.toList(array, JsonValue::asString);
+        ArrayNode array = JsonUtils.getArray(json, "namedGraphs");
+        List<String> result = array == null ? null : JsonUtils.toList(array, JsonNode::asString);
         return result;
     }
 
     public RequestConfig setNamedGraphs(List<String> list) {
-        return setNamedGraphs(JsonUtils.toArray(list, Json::create));
+        return setNamedGraphs(JsonUtils.toArray(list, JsonUtils::create));
     }
 
-    public RequestConfig setNamedGraphs(JsonArray array) {
-        json.put("namedGraphs", array);
+    public RequestConfig setNamedGraphs(ArrayNode array) {
+        json.set("namedGraphs", array);
         return this;
     }
 
     public List<String> getDefaultGraphs() {
-        JsonArray array = json.getArray("defaultGraphs");
-        List<String> result = array == null ? null : JsonUtils.toList(array, JsonValue::asString);
+        ArrayNode array = JsonUtils.getArray(json, "defaultGraphs");
+        List<String> result = array == null ? null : JsonUtils.toList(array, JsonNode::asString);
         return result;
     }
 
     public RequestConfig setDefaultGraphs(List<String> list) {
-        return setDefaultGraphs(JsonUtils.toArray(list, Json::create));
+        return setDefaultGraphs(JsonUtils.toArray(list, JsonUtils::create));
     }
 
-    public RequestConfig setDefaultGraphs(JsonArray array) {
-        json.put("defaultGraphs", array);
+    public RequestConfig setDefaultGraphs(ArrayNode array) {
+        json.set("defaultGraphs", array);
         return this;
     }
 
     public Map<String, String> getHeaders() {
-        JsonObject tmp = json.getObject("headers");
-        return tmp == null ? null : JsonUtils.toMap(tmp, JsonValue::asString);
+        ObjectNode tmp = JsonUtils.getObject(json, "headers");
+        return tmp == null ? null : JsonUtils.toMap(tmp, JsonNode::asString);
     }
 
     public RequestConfig setHeaders(Map<String, String> map) {
-        return setHeaders(JsonUtils.toObject(map, Json::create));
+        return setHeaders(JsonUtils.toObject(map, JsonUtils::create));
     }
 
-    public RequestConfig setHeaders(JsonObject json) {
-        json.put("headers", json);
+    public RequestConfig setHeaders(ObjectNode json) {
+        json.set("headers", json);
         return this;
     }
 
@@ -134,12 +133,12 @@ public class RequestConfig
     }
 
     public RequestConfig addDefaultGraph(String value) {
-        JsonUtils.getOrCreateArrayAndAdd(json, "defaultGraphs", Json.create(value));
+        JsonUtils.getOrCreateArrayAndAdd(json, "defaultGraphs", JsonUtils.create(value));
         return this;
     }
 
     public RequestConfig addNamedGraph(String value) {
-        JsonUtils.getOrCreateArrayAndAdd(json, "namedGraphs", Json.create(value));
+        JsonUtils.getOrCreateArrayAndAdd(json, "namedGraphs", JsonUtils.create(value));
         return this;
     }
 

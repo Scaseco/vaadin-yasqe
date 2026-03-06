@@ -21,7 +21,7 @@
 	</organization>
 
 	<properties>
-		<javaVersion>17</javaVersion>
+		<javaVersion>21</javaVersion>
 		<maven.compiler.release>${javaVersion}</maven.compiler.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,9 +30,8 @@
 		<mainClass>org.aksw.vaadin.yasqe.demo.MainAppVaadinYasqeDemo</mainClass>
 
 		<!-- Dependency-Versions -->
-		<vaadin.version>24.3.3</vaadin.version>
-
-		<org.springframework.boot.version>3.2.1</org.springframework.boot.version>
+		<vaadin.version>25.0.6</vaadin.version>
+		<spring-boot.version>4.1.0-M2</spring-boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -52,7 +51,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${org.springframework.boot.version}</version>
+				<version>${spring-boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -63,13 +62,13 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
-			<exclusions>
-				<!-- https://github.com/vaadin/flow/issues/18449 -->
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>copilot</artifactId>
-				</exclusion>
-			</exclusions>
+			<!--			<exclusions>-->
+			<!--				 https://github.com/vaadin/flow/issues/18449 -->
+			<!--				<exclusion>-->
+			<!--					<groupId>com.vaadin</groupId>-->
+			<!--					<artifactId>copilot</artifactId>-->
+			<!--				</exclusion>-->
+			<!--			</exclusions>-->
 		</dependency>
 		<dependency>
 			<groupId>org.aksw.vaadin.yasqe</groupId>
@@ -81,16 +80,23 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 		</dependency>
-		<!-- Temporarily excluded by Vaadin due to "security vulnerability" -->
+
 		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-dev</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Temporarily excluded by Vaadin due to "security vulnerability" -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.yaml</groupId>-->
+		<!--			<artifactId>snakeyaml</artifactId>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.boot</groupId>-->
+		<!--			<artifactId>spring-boot-devtools</artifactId>-->
+		<!--			<optional>true</optional>-->
+		<!--		</dependency>-->
 	</dependencies>
 
 	<build>

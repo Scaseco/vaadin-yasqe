@@ -52,9 +52,9 @@
 
 	<properties>
 		<!-- Dependency-Versions -->
-		<vaadin.version>24.3.3</vaadin.version>
+		<vaadin.version>25.0.6</vaadin.version>
 
-		<javaVersion>17</javaVersion>
+		<javaVersion>21</javaVersion>
 		<maven.compiler.release>${javaVersion}</maven.compiler.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -103,6 +103,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
+<!--			<scope>provided</scope>-->
 			<exclusions>
 				<!-- https://github.com/vaadin/flow/issues/18449 -->
 				<exclusion>
@@ -112,17 +113,17 @@
 			</exclusions>
 		</dependency>
 		<!-- JSON JACKSON -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.16.1</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.fasterxml.jackson.core</groupId>-->
+<!--			<artifactId>jackson-databind</artifactId>-->
+<!--			<version>2.16.1</version>-->
+<!--		</dependency>-->
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>1.11.0</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.apache.commons</groupId>-->
+<!--			<artifactId>commons-text</artifactId>-->
+<!--			<version>1.11.0</version>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>

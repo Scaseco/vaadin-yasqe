@@ -1,5 +1,5 @@
 vaadin:
-  whitelisted-packages: org/aksw/vaadin/yasqe,com/vaadin/flow
+  allowed-packages: org/aksw/vaadin/yasqe,com/vaadin/flow
 
 spring:
   devtools:

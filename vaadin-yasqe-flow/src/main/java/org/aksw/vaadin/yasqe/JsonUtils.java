@@ -16,46 +16,89 @@
 package org.aksw.vaadin.yasqe;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ValueNode;
 
 public class JsonUtils {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonNodeFactory FACTORY = JsonNodeFactory.instance;
+
+    public static NullNode createNull() {
+        return FACTORY.nullNode();
+    }
+
+    public static ObjectNode createObject() {
+        return FACTORY.objectNode();
+    }
+
+    public static ValueNode create(Boolean v) {
+        return v == null ? createNull() : FACTORY.booleanNode(v);
+    }
+
+    public static ValueNode create(String v) {
+        return v == null ? createNull() : FACTORY.stringNode(v);
+    }
+
+    public static ObjectNode getObject(ObjectNode src, String member) {
+        return (ObjectNode)src.get(member);
+    }
+
+    public static ArrayNode getArray(ObjectNode src, String member) {
+        return (ArrayNode)src.get(member);
+    }
+
+    public static String textOrNull(JsonNode node) {
+        return node.isNull() ? null : node.asString();
+    }
+
+    public static Boolean booleanOrNull(JsonNode node) {
+        return node.isNull() ? null : node.booleanValue();
+    }
+
+    public static String getString(ObjectNode obj, String member) {
+        JsonNode val = obj.get(member);
+        return textOrNull(val);
+    }
+
+    public static Boolean getBoolean(ObjectNode obj, String member) {
+        JsonNode val = obj.get(member);
+        return booleanOrNull(val);
+    }
+
     /** Copy all entries from src into dst (not a deep copy) */
-    public static JsonObject putAll(JsonObject dst, JsonObject src) {
-        for (String key : src.keys()) {
-            JsonValue value = src.get(key);
-            dst.put(key, value);
-        }
+    public static ObjectNode putAll(ObjectNode dst, ObjectNode src) {
+        src.properties().stream().forEach(entry -> dst.set(entry.getKey(), entry.getValue()));
         return dst;
     }
 
-    public static JsonObject clear(JsonObject json) {
-        Arrays.asList(json.keys()).forEach(json::remove);
+    public static ObjectNode clear(ObjectNode json) {
+        json.removeAll();
         return json;
     }
 
-    public static JsonValue clone(JsonValue json) {
-        // Print-parse is a slow approach for cloning...
-        JsonValue result = Json.parse(json.toJson());
-        return result;
+    public static JsonNode clone(JsonNode json) {
+        // Reliable deep copy using Jackson's conversion
+        return MAPPER.valueToTree(MAPPER.convertValue(json, Object.class));
     }
 
-    public static JsonObject clone(JsonObject json) {
-        return (JsonObject)clone((JsonValue)json);
+    public static ObjectNode clone(ObjectNode json) {
+        return (ObjectNode) clone((JsonNode) json);
     }
 
     /** Unsets the key if the value is null, otherwise sets it as usual. */
-    public static JsonObject putOrUnset(JsonObject json, String key, String value) {
+    public static ObjectNode putOrUnset(ObjectNode json, String key, String value) {
         if (value == null) {
             json.remove(key);
         } else {
@@ -64,76 +107,61 @@ public class JsonUtils {
         return json;
     }
 
-    public static <T> List<T> toList(JsonArray array, Function<JsonValue, T> mapper) {
-        int n = array.length();
-        List<T> result = new ArrayList<>(n);
-        for (int i = 0; i < n; ++i) {
-            JsonValue value = array.getArray(i);
-            T t = mapper.apply(value);
-            result.add(t);
+    public static <T> List<T> toList(ArrayNode array, Function<JsonNode, T> mapper) {
+        List<T> result = new ArrayList<>(array.size());
+        for (JsonNode value : array) {
+            result.add(mapper.apply(value));
         }
         return result;
     }
 
-    public static <T> JsonArray toArray(List<T> list, Function<T, JsonValue> mapper) {
-        JsonArray result = Json.createArray();
-        Iterator<T> it = list.iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            T item = it.next();
-            JsonValue value = mapper.apply(item);
-            result.set(i, value);
-            ++i;
-        }
+    public static <T> ArrayNode toArray(List<T> list, Function<T, JsonNode> mapper) {
+        ArrayNode result = FACTORY.arrayNode();
+        list.forEach(item -> result.add(mapper.apply(item)));
         return result;
     }
 
-    public static JsonArray add(JsonArray array, JsonValue item) {
-        int n = array.length();
-        array.set(n, item);
+    public static ArrayNode add(ArrayNode array, JsonNode item) {
+        array.add(item);
         return array;
     }
 
-    public static JsonArray getOrCreateArrayAndAdd(JsonObject owner, String key, JsonValue item) {
-        JsonArray array = getOrCreateArray(owner, key);
+    public static ArrayNode getOrCreateArrayAndAdd(ObjectNode owner, String key, JsonNode item) {
+        ArrayNode array = getOrCreateArray(owner, key);
         add(array, item);
         return array;
     }
 
-    public static JsonArray getOrCreateArray(JsonObject owner, String key) {
-        return getOrCreate(owner, key, Json::createArray);
+    public static ArrayNode getOrCreateArray(ObjectNode owner, String key) {
+        return getOrCreate(owner, key, FACTORY::arrayNode);
     }
 
-    public static JsonObject getOrCreateObject(JsonObject owner, String key) {
-        return getOrCreate(owner, key, Json::createObject);
+    public static ObjectNode getOrCreateObject(ObjectNode owner, String key) {
+        return getOrCreate(owner, key, FACTORY::objectNode);
     }
 
-    public static <T extends JsonValue> T getOrCreate(JsonObject owner, String key, Supplier<T> newInstance) {
-        T result = owner.get(key);
-        if (result == null) {
-            result = newInstance.get();
-            owner.put(key, result);
+    public static <T extends JsonNode> T getOrCreate(ObjectNode owner, String key, Supplier<T> newInstance) {
+        JsonNode existing = owner.get(key);
+        if (existing == null || !existing.getNodeType().equals(newInstance.get().getNodeType())) {
+            T result = newInstance.get();
+            owner.set(key, result);
+            return result;
         }
-        return result;
+        @SuppressWarnings("unchecked")
+        T cast = (T) existing;
+        return cast;
     }
 
-    public static <T> Map<String, T> toMap(JsonObject json, Function<JsonValue, T> mapper) {
-        Map<String, T> result = Arrays.asList(json.keys()).stream().collect(Collectors.toMap(
-                k -> k,
-                k -> {
-                    T r = mapper.apply(json.get(k));
-                    return r;
-                }));
-        return result;
+    public static <T> Map<String, T> toMap(ObjectNode json, Function<JsonNode, T> mapper) {
+        return json.properties().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> mapper.apply(e.getValue())
+        ));
     }
 
-    public static <T> JsonObject toObject(Map<String, T> map, Function<T, JsonValue> mapper) {
-        JsonObject result = Json.createObject();
-        map.entrySet().stream().forEach(e -> {
-            JsonValue v = mapper.apply(e.getValue());
-            result.put(e.getKey(), v);
-        });
+    public static <T> ObjectNode toObject(Map<String, T> map, Function<T, JsonNode> mapper) {
+        ObjectNode result = FACTORY.objectNode();
+        map.forEach((key, value) -> result.set(key, mapper.apply(value)));
         return result;
     }
-
 }
