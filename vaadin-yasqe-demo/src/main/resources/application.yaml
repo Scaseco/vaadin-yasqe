@@ -1,8 +1,24 @@
+server:
+  port: 8000
+
 vaadin:
   allowed-packages: org/aksw/vaadin/yasqe,com/vaadin/flow
+  compatibility-mode: false
+  devmode:
+    usage-statistics:
+      enabled: false
+
+logging:
+  level:
+    org.atmosphere: warn
 
 spring:
+  main:
+    banner-mode: off
   devtools:
     restart:
       poll-interval: 2s
       quiet-period: 1s
+  cloud:
+    refresh:
+      enabled: true

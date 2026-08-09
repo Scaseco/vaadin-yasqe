@@ -18,15 +18,18 @@ package org.aksw.vaadin.yasqe;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 
@@ -56,6 +59,8 @@ public class Yasqe extends Div {
 
     protected SerializableFunction<ShortLinkRequestEvent, String> shortLinkHandler;
 
+    protected volatile UI ui;
+
     public static void initDefaults(ObjectNode json) {
         json.set("value", JsonUtils.createNull());
         json.set("enqueuedPrefixes", JsonUtils.createObject());
@@ -79,9 +84,9 @@ public class Yasqe extends Div {
 
         this.config = Objects.requireNonNull(config);
 
-        addAttachListener(ev -> {
-            init();
-        });
+//        addAttachListener(ev -> {
+//            init();
+//        });
     }
 
     protected void init() {
@@ -123,15 +128,22 @@ public class Yasqe extends Div {
 
             // Override abortQuery to not actually try to abort a request
             yasqe.abortQuery = () => {
-                if (this.req) {
-                    this.req = undefined;
+                // if (this.req) {
+                //     this.req = undefined;
+                // }
+                // Note: ChatGPT suggested use of 'yasqe' over 'this' - but not clear whether that really works.
+                if (yasqe.req) {
+                    yasqe.req = undefined;
                 }
             };
 
             // If a value was set on the mirror then place it into yasqe
             // This overrides local storage!
-            if (mirror.value) {
+            if (mirror.value != null) {
                 yasqe.setValue(mirror.value);
+            } else {
+                // Capture the value YASQE restored from local storage.
+                self.$server.onSetValue(yasqe.getValue());
             }
 
             yasqe.super_setValue = yasqe.setValue;
@@ -157,12 +169,26 @@ public class Yasqe extends Div {
         }, 100);
         """, getId().get(), config.getJson(), mirrorClone);
 
+        // pending.toCompletableFuture().thenCompose(json -> getValueFromClient());
+
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                ui.access(() -> {
+//                    getValueFromClient();
+//                });
+//            }
+//        }, 500);
+
         JsonUtils.clear(JsonUtils.getObject(mirror, "enqueuedPrefixes"));
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
+        ui = UI.getCurrent();
+        init();
     }
 
     public Yasqe setRequestConfig(RequestConfig requestConfig) {
@@ -179,7 +205,7 @@ public class Yasqe extends Div {
 
     /** Returns the current value. If the component is not initialized the value will be null. */
     public String getValue() {
-        return JsonUtils.getString(mirror, "value");
+        return getValueFromMirror();
     }
 
     protected void executeJs(String expression, Object... parameters) {
@@ -192,10 +218,30 @@ public class Yasqe extends Div {
         }
     }
 
+    protected String getValueFromMirror() {
+        return JsonUtils.getString(mirror, "value");
+    }
+
     public Yasqe setValue(String value) {
         mirror.put("value", value);
         executeJsIfReady("document.getElementById($0).yasqe.setValue($1)", getId().get(), value);
         return this;
+    }
+
+    protected CompletableFuture<String> getValueFromClient() {
+        return this.getElement()
+            .executeJs("return document.getElementById($0).yasqe.getValue()", getId().get())
+            .toCompletableFuture().thenApply(json -> {
+                String oldValue = getValueFromMirror();
+                String result;
+                if (oldValue == null && json != null) {
+                    result = json.asString();
+                    mirror.put("value", result);
+                } else {
+                    result = oldValue;
+                }
+                return result;
+            });
     }
 
     public Yasqe setInputAreaSize(Integer width, Integer height) {
