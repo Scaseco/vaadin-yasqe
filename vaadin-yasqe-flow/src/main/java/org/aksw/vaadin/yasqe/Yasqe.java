@@ -95,10 +95,10 @@ public class Yasqe extends Div {
 
         this.getElement().executeJs("""
         setTimeout(function() {
-            const id = $0;
-            const config = $1;
-            const mirror = $2;
-            const self = document.getElementById(id);
+            let id = $0;
+            let config = $1;
+            let mirror = $2;
+            let self = document.getElementById(id);
 
             // Apply pending requestConfig
             if (mirror.requestConfig) {
@@ -111,7 +111,7 @@ public class Yasqe extends Div {
                 };
             }
 
-            const yasqe = new Yasqe(self, config);
+            let yasqe = new Yasqe(self, config);
             self.yasqe = yasqe;
 
             console.log('id', id);
@@ -128,10 +128,6 @@ public class Yasqe extends Div {
 
             // Override abortQuery to not actually try to abort a request
             yasqe.abortQuery = () => {
-                // if (this.req) {
-                //     this.req = undefined;
-                // }
-                // Note: ChatGPT suggested use of 'yasqe' over 'this' - but not clear whether that really works.
                 if (yasqe.req) {
                     yasqe.req = undefined;
                 }
@@ -148,8 +144,8 @@ public class Yasqe extends Div {
 
             yasqe.super_setValue = yasqe.setValue;
             yasqe.setValue = arg => {
-                self.$server.onSetValue(arg);
                 yasqe.super_setValue(arg);
+                self.$server.onSetValue(arg);
             };
 
             yasqe.addPrefixes(mirror.enqueuedPrefixes);
@@ -288,6 +284,7 @@ public class Yasqe extends Div {
 
     @ClientCallable
     public void onQuery(String req, boolean isAbort) {
+        onSetValue(req);
         fireEvent(new QueryButtonEvent(this, true, req, isAbort));
     }
 
