@@ -15,32 +15,34 @@
  */
 package org.aksw.vaadin.yasqe;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
-
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ValueNode;
 
 /**
  * Component that contains a yasqe and all required client side dependencies for Vaadin.
  */
 @Tag("yasqe")
-@NpmPackage(value = "@zazuko/yasqe", version = "4.2.34")
+// @NpmPackage(value = "@zazuko/yasqe", version = "4.2.34")
+@NpmPackage(value = "@zazuko/yasqe", version = "4.6.1")
 @CssImport("@zazuko/yasqe/build/yasqe.min.css")
 @JavaScript("./yasqe.vaadin.bootstrap.js")
 public class Yasqe extends Div {
@@ -53,13 +55,15 @@ public class Yasqe extends Div {
      * Passed to the client upon init.
      * Updated when the client reports changes.
      */
-    protected JsonObject mirror;
+    protected ObjectNode mirror;
 
     protected SerializableFunction<ShortLinkRequestEvent, String> shortLinkHandler;
 
-    public static void initDefaults(JsonObject json) {
-        json.put("value", Json.createNull());
-        json.put("enqueuedPrefixes", Json.createObject());
+    protected volatile UI ui;
+
+    public static void initDefaults(ObjectNode json) {
+        json.set("value", JsonUtils.createNull());
+        json.set("enqueuedPrefixes", JsonUtils.createObject());
         // json.put("inputAreaWidth", );
     }
 
@@ -75,26 +79,26 @@ public class Yasqe extends Div {
         String id = "yasqe-" + UUID.randomUUID();
         setId(id);
 
-        this.mirror = Json.createObject();
+        this.mirror = JsonUtils.createObject();
         initDefaults(mirror);
 
         this.config = Objects.requireNonNull(config);
 
-        addAttachListener(ev -> {
-            init();
-        });
+//        addAttachListener(ev -> {
+//            init();
+//        });
     }
 
     protected void init() {
         // We need to clone the json to avoid concurrent modifications
-        JsonValue mirrorClone = JsonUtils.clone(mirror);
+        JsonNode mirrorClone = JsonUtils.clone(mirror);
 
         this.getElement().executeJs("""
         setTimeout(function() {
-            const id = $0;
-            const config = $1;
-            const mirror = $2;
-            const self = document.getElementById(id);
+            let id = $0;
+            let config = $1;
+            let mirror = $2;
+            let self = document.getElementById(id);
 
             // Apply pending requestConfig
             if (mirror.requestConfig) {
@@ -107,7 +111,7 @@ public class Yasqe extends Div {
                 };
             }
 
-            const yasqe = new Yasqe(self, config);
+            let yasqe = new Yasqe(self, config);
             self.yasqe = yasqe;
 
             console.log('id', id);
@@ -124,21 +128,24 @@ public class Yasqe extends Div {
 
             // Override abortQuery to not actually try to abort a request
             yasqe.abortQuery = () => {
-                if (this.req) {
-                    this.req = undefined;
+                if (yasqe.req) {
+                    yasqe.req = undefined;
                 }
             };
 
             // If a value was set on the mirror then place it into yasqe
             // This overrides local storage!
-            if (mirror.value) {
+            if (mirror.value != null) {
                 yasqe.setValue(mirror.value);
+            } else {
+                // Capture the value YASQE restored from local storage.
+                self.$server.onSetValue(yasqe.getValue());
             }
 
             yasqe.super_setValue = yasqe.setValue;
             yasqe.setValue = arg => {
-                self.$server.onSetValue(arg);
                 yasqe.super_setValue(arg);
+                self.$server.onSetValue(arg);
             };
 
             yasqe.addPrefixes(mirror.enqueuedPrefixes);
@@ -158,45 +165,79 @@ public class Yasqe extends Div {
         }, 100);
         """, getId().get(), config.getJson(), mirrorClone);
 
-        JsonUtils.clear(mirror.getObject("enqueuedPrefixes"));
+        // pending.toCompletableFuture().thenCompose(json -> getValueFromClient());
+
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                ui.access(() -> {
+//                    getValueFromClient();
+//                });
+//            }
+//        }, 500);
+
+        JsonUtils.clear(JsonUtils.getObject(mirror, "enqueuedPrefixes"));
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
+        ui = UI.getCurrent();
+        init();
     }
 
     public Yasqe setRequestConfig(RequestConfig requestConfig) {
-        mirror.put("requestConfig", JsonUtils.clone(requestConfig.getJson()));
+        mirror.set("requestConfig", JsonUtils.clone(requestConfig.getJson()));
         executeJsIfReady("document.getElementById($0).yasqe.requestConfig = $1;", getId().get(), requestConfig.getJson());
         return this;
     }
 
     public RequestConfig getRequestConfig() {
-        JsonObject tmp = mirror.getObject("requestConfig");
-        return new RequestConfig(tmp == null ? Json.createObject() : JsonUtils.clone(tmp));
+        ObjectNode tmp = JsonUtils.getObject(mirror, "requestConfig");
+        return new RequestConfig(tmp == null ? JsonUtils.createObject() : JsonUtils.clone(tmp));
     }
 
 
     /** Returns the current value. If the component is not initialized the value will be null. */
     public String getValue() {
-        return mirror.get("value").asString();
+        return getValueFromMirror();
     }
 
-    protected void executeJs(String expression, Serializable... parameters) {
+    protected void executeJs(String expression, Object... parameters) {
         this.getElement().executeJs(expression, parameters);
     }
 
-    protected void executeJsIfReady(String expression, Serializable... parameters) {
+    protected void executeJsIfReady(String expression, Object... parameters) {
         if (isAttached()) {
             executeJs(expression, parameters);
         }
+    }
+
+    protected String getValueFromMirror() {
+        return JsonUtils.getString(mirror, "value");
     }
 
     public Yasqe setValue(String value) {
         mirror.put("value", value);
         executeJsIfReady("document.getElementById($0).yasqe.setValue($1)", getId().get(), value);
         return this;
+    }
+
+    protected CompletableFuture<String> getValueFromClient() {
+        return this.getElement()
+            .executeJs("return document.getElementById($0).yasqe.getValue()", getId().get())
+            .toCompletableFuture().thenApply(json -> {
+                String oldValue = getValueFromMirror();
+                String result;
+                if (oldValue == null && json != null) {
+                    result = json.asString();
+                    mirror.put("value", result);
+                } else {
+                    result = oldValue;
+                }
+                return result;
+            });
     }
 
     public Yasqe setInputAreaSize(Integer width, Integer height) {
@@ -208,7 +249,7 @@ public class Yasqe extends Div {
 
     /** See {@link #addPrefixes(JsonObject)} */
     public Yasqe addPrefixes(Map<String, String> prefixes) {
-        JsonObject tmp = Json.createObject();
+        ObjectNode tmp = JsonUtils.createObject();
         prefixes.forEach(tmp::put);
         addPrefixes(tmp);
         return this;
@@ -219,18 +260,18 @@ public class Yasqe extends Div {
      * Does not affect the auto completion.
      * Auto completion is API based and configurable in {@link YasqeConfig#getPrefixCcApi()}.
      */
-    public Yasqe addPrefixes(JsonObject prefixes) {
+    public Yasqe addPrefixes(ObjectNode prefixes) {
         if (isAttached()) {
             executeJs("document.getElementById($0).yasqe.addPrefixes($1)", getId().get(), prefixes);
         } else {
-            JsonUtils.putAll(mirror.getObject("enqueuedPrefixes"), prefixes);
+            JsonUtils.putAll(JsonUtils.getObject(mirror, "enqueuedPrefixes"), prefixes);
         }
         return this;
     }
 
     public void updateQueryButton(boolean isBusy, Boolean isError) {
-        JsonValue errValue = isError == null ? Json.createNull() : Json.create(isError);
-        mirror.put("queryButtonError", errValue);
+        ValueNode errValue = isError == null ? JsonUtils.createNull() : JsonUtils.create(isError);
+        mirror.set("queryButtonError", errValue);
         mirror.put("queryButtonBusy", isBusy);
         executeJsIfReady("document.getElementById($0).yasqe.updateQueryButtonX($1, $2)", getId().get(), isBusy, errValue);
 
@@ -243,6 +284,7 @@ public class Yasqe extends Div {
 
     @ClientCallable
     public void onQuery(String req, boolean isAbort) {
+        onSetValue(req);
         fireEvent(new QueryButtonEvent(this, true, req, isAbort));
     }
 

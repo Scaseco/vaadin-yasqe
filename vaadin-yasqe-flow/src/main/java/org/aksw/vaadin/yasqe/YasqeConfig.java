@@ -15,8 +15,7 @@
  */
 package org.aksw.vaadin.yasqe;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * The YasqeConfig.
@@ -29,19 +28,19 @@ public class YasqeConfig
     private static final long serialVersionUID = 1L;
 
     public YasqeConfig() {
-        this(Json.createObject());
+        this(JsonUtils.createObject());
     }
 
     /**
      * Any Json object can serve as the 'backend' for a YasqeConfig.
      * It should be ensured that that all present values are of the appropriate type.
      */
-    public YasqeConfig(JsonObject json) {
+    public YasqeConfig(ObjectNode json) {
         super(json);
     }
 
     public String getMode() {
-        return json.getString("mode");
+        return JsonUtils.getString(json, "mode");
     }
 
     public YasqeConfig setMode(String value) {
@@ -50,7 +49,7 @@ public class YasqeConfig
     }
 
     public String getPersistenceId() {
-        return json.getString("persistenceId");
+        return JsonUtils.getString(json, "persistenceId");
     }
 
     public YasqeConfig setPersistenceId(String value) {
@@ -59,7 +58,7 @@ public class YasqeConfig
     }
 
     public Boolean getCollapsePrefixesOnLoad() {
-        return json.getBoolean("collapsePrefixesOnLoad");
+        return JsonUtils.getBoolean(json, "collapsePrefixesOnLoad");
     }
 
     public YasqeConfig setCollapsePrefixesOnLoad(Boolean value) {
@@ -68,7 +67,7 @@ public class YasqeConfig
     }
 
     public Boolean getSyntaxErrorCheck() {
-        return json.getBoolean("syntaxErrorCheck");
+        return JsonUtils.getBoolean(json, "syntaxErrorCheck");
     }
 
     public YasqeConfig setSyntaxErrorCheck(Boolean value) {
@@ -77,7 +76,7 @@ public class YasqeConfig
     }
 
     public Boolean isResizeable() {
-        return json.getBoolean("resizeable");
+        return JsonUtils.getBoolean(json, "resizeable");
     }
 
     public YasqeConfig setResizeable(Boolean value) {
@@ -86,7 +85,7 @@ public class YasqeConfig
     }
 
     public String getPrefixCcApi() {
-        return json.getString("prefixCcApi");
+        return JsonUtils.getString(json, "prefixCcApi");
     }
 
     public YasqeConfig setPrefixCcApi(String value) {
@@ -95,7 +94,7 @@ public class YasqeConfig
     }
 
     public Boolean isShowQueryButton() {
-        return json.getBoolean("showQueryButton");
+        return JsonUtils.getBoolean(json, "showQueryButton");
     }
 
     public YasqeConfig setShowQueryButton(Boolean value) {
@@ -104,7 +103,7 @@ public class YasqeConfig
     }
 
     public Boolean isShowShortLinkButton() {
-        return json.getBoolean("showShortLinkButton");
+        return JsonUtils.getBoolean(json, "showShortLinkButton");
     }
 
     public YasqeConfig setShowShortLinkButton(Boolean value) {
